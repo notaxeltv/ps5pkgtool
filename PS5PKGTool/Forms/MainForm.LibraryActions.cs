@@ -54,14 +54,7 @@ public partial class MainForm
             return;
         }
 
-        string? suggested = null;
-        Ps5GameInfo? game = _selectedGame is not null &&
-            string.Equals(_selectedGame.RootPath, source, StringComparison.OrdinalIgnoreCase)
-            ? _selectedGame
-            : _games.FirstOrDefault(candidate =>
-                string.Equals(candidate.RootPath, source, StringComparison.OrdinalIgnoreCase));
-        if (game is not null)
-            suggested = BuildBaseName(game, RenameFormatOrDefault(_settings.RenameFormat));
+        string suggested = BuildBaseName(game, RenameFormatOrDefault(_settings.RenameFormat));
         string? outputDir = !string.IsNullOrWhiteSpace(_settings.OutputDirectory) &&
                             Directory.Exists(_settings.OutputDirectory)
             ? _settings.OutputDirectory
