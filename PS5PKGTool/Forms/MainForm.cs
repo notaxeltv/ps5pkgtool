@@ -350,33 +350,62 @@ public partial class MainForm : DarkForm
 
     private async void AddFolder_Click(object? sender, EventArgs e)
     {
-        folderBrowserDialog.Description = "Select a PS5 library folder";
-        if (folderBrowserDialog.ShowDialog(this) != DialogResult.OK) return;
-        string selected = folderBrowserDialog.SelectedPath;
-        if (!_settings.LibraryFolders.Contains(selected, StringComparer.OrdinalIgnoreCase))
+        IReadOnlyList<string> selected = NativeFolderPicker.PickFolders(
+            this,
+            "Select PS5 library folder(s)",
+            allowMultiple: true,
+            askAddAnother: _ => AppDialog.ShowInformation(
+                "Add another library folder?",
+                "Add library folder",
+                DarkUI.Forms.DarkDialogButton.YesNo) == DialogResult.Yes);
+        if (selected.Count == 0) return;
+
+        bool changed = false;
+        foreach (string path in selected)
         {
-            _settings.LibraryFolders.Add(selected);
-            _stateStore.SaveSettings(_settings);
+            if (_settings.LibraryFolders.Contains(path, StringComparer.OrdinalIgnoreCase))
+                continue;
+            _settings.LibraryFolders.Add(path);
+            changed = true;
+            AddRecentFolder(path);
         }
-        AddRecentFolder(selected);
+        if (changed)
+            _stateStore.SaveSettings(_settings);
         await ScanAsync(ScanRoots(), merge: false);
     }
 
     private async void OpenDump_Click(object? sender, EventArgs e)
     {
-        folderBrowserDialog.Description = "Select the root of an unpacked PS5 game dump";
-        if (folderBrowserDialog.ShowDialog(this) != DialogResult.OK) return;
-        AddRecentFolder(folderBrowserDialog.SelectedPath);
-        RememberManualSource(folderBrowserDialog.SelectedPath);
-        await ScanAsync([folderBrowserDialog.SelectedPath], merge: true);
+        IReadOnlyList<string> selected = NativeFolderPicker.PickFolders(
+            this,
+            "Select unpacked PS5 dump folder(s)",
+            allowMultiple: true,
+            askAddAnother: _ => AppDialog.ShowInformation(
+                "Open another dump folder?",
+                "Open dump folder",
+                DarkUI.Forms.DarkDialogButton.YesNo) == DialogResult.Yes);
+        if (selected.Count == 0) return;
+
+        foreach (string path in selected)
+        {
+            AddRecentFolder(path);
+            RememberManualSource(path);
+        }
+        await ScanAsync(selected, merge: true);
     }
 
     private async void OpenPackage_Click(object? sender, EventArgs e)
     {
+        packageOpenDialog.Multiselect = true;
         if (packageOpenDialog.ShowDialog(this) != DialogResult.OK) return;
-        AddRecentFolder(packageOpenDialog.FileName);
-        RememberManualSource(packageOpenDialog.FileName);
-        await ScanAsync([packageOpenDialog.FileName], merge: true);
+        string[] files = packageOpenDialog.FileNames;
+        if (files.Length == 0) return;
+        foreach (string file in files)
+        {
+            AddRecentFolder(file);
+            RememberManualSource(file);
+        }
+        await ScanAsync(files, merge: true);
     }
 
     private async void Refresh_Click(object? sender, EventArgs e)

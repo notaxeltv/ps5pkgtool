@@ -6,8 +6,9 @@ components below are used under their own terms.
 ## ProsperoPkgTool
 
 The PS5 PKG (FIH/CNT/PFS/NAPS) reading, verification, extraction and debug-package creation
-implementation is provided by the clean-room MIT engine ProsperoPkgTool, consumed as a vendored
-managed library at `PS5PKGTool/ThirdParty/ProsperoPkgTool/ProsperoPkgTool.dll`.
+implementation is provided by the clean-room MIT engine ProsperoPkgTool, consumed as a git
+submodule at `deps/ProsperoPkgTool` and built from source (see
+`PS5PKGTool/ThirdParty/ProsperoPkgTool/VERSION.txt` for the pinned revision).
 
 MIT License. Copyright (c) 2026 pearlxcore. No GPL, SDK, or decompiled code is included; the
 engine is a clean-room reimplementation validated against independent oracles.
@@ -37,8 +38,10 @@ License. Copyright (c) 2026, SvenGDK. The original copyright and license text ar
 
 ## DarkUI
 
-The user interface is built on DarkUI, licensed under the MIT License.
+The user interface is built on DarkUI, licensed under the MIT License, included as a git
+submodule at `deps/DarkUI`.
 Copyright (c) 2017 Robin (Robin Perris). https://github.com/RobinPerris/DarkUI
+(fork used for builds: https://github.com/pearlxcore/DarkUI)
 
 ## BCnEncoder.Net
 

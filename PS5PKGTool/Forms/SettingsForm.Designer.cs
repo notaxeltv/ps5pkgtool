@@ -244,15 +244,17 @@ partial class SettingsForm
         tabLibrary.Controls.Add(lblLibraryNotice);
         tabLibrary.Location = new Point(4, 26);
         tabLibrary.Name = "tabLibrary";
-        tabLibrary.Size = new Size(688, 362);
+        tabLibrary.Padding = new Padding(8);
+        tabLibrary.Size = new Size(978, 362);
         tabLibrary.TabIndex = 0;
         tabLibrary.Text = "Library";
         // 
         // lblLibraryInfo
         // 
+        lblLibraryInfo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         lblLibraryInfo.Location = new Point(16, 14);
         lblLibraryInfo.Name = "lblLibraryInfo";
-        lblLibraryInfo.Size = new Size(656, 15);
+        lblLibraryInfo.Size = new Size(946, 15);
         lblLibraryInfo.TabIndex = 0;
         lblLibraryInfo.Text = "Folders scanned for dumps, packages and images, plus sources added individually.";
         // 
@@ -260,45 +262,48 @@ partial class SettingsForm
         // 
         lblFolders.Location = new Point(16, 40);
         lblFolders.Name = "lblFolders";
-        lblFolders.Size = new Size(380, 15);
+        lblFolders.Size = new Size(460, 15);
         lblFolders.TabIndex = 1;
         lblFolders.Text = "Library folders";
         // 
         // lstFolders
         // 
-        lstFolders.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        lstFolders.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
         lstFolders.DrawMode = DrawMode.OwnerDrawFixed;
         lstFolders.FormattingEnabled = true;
         lstFolders.ItemHeight = 20;
         lstFolders.Location = new Point(16, 58);
         lstFolders.Name = "lstFolders";
         lstFolders.SelectionMode = SelectionMode.MultiExtended;
-        lstFolders.Size = new Size(380, 174);
+        lstFolders.Size = new Size(460, 174);
         lstFolders.TabIndex = 2;
         // 
         // btnAdd
         // 
+        btnAdd.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
         btnAdd.Location = new Point(16, 240);
         btnAdd.Name = "btnAdd";
-        btnAdd.Size = new Size(120, 30);
+        btnAdd.Size = new Size(140, 30);
         btnAdd.TabIndex = 3;
         btnAdd.Text = "Add Folder...";
         btnAdd.Click += btnAdd_Click;
         // 
         // btnRemove
         // 
-        btnRemove.Location = new Point(142, 240);
+        btnRemove.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+        btnRemove.Location = new Point(162, 240);
         btnRemove.Name = "btnRemove";
-        btnRemove.Size = new Size(140, 30);
+        btnRemove.Size = new Size(160, 30);
         btnRemove.TabIndex = 4;
         btnRemove.Text = "Remove from Library";
         btnRemove.Click += btnRemove_Click;
         // 
         // lblManualSources
         // 
-        lblManualSources.Location = new Point(420, 40);
+        lblManualSources.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        lblManualSources.Location = new Point(502, 40);
         lblManualSources.Name = "lblManualSources";
-        lblManualSources.Size = new Size(252, 15);
+        lblManualSources.Size = new Size(460, 15);
         lblManualSources.TabIndex = 5;
         lblManualSources.Text = "Manually added sources";
         // 
@@ -308,15 +313,16 @@ partial class SettingsForm
         lstManualSources.DrawMode = DrawMode.OwnerDrawFixed;
         lstManualSources.FormattingEnabled = true;
         lstManualSources.ItemHeight = 20;
-        lstManualSources.Location = new Point(420, 58);
+        lstManualSources.Location = new Point(502, 58);
         lstManualSources.Name = "lstManualSources";
         lstManualSources.SelectionMode = SelectionMode.MultiExtended;
-        lstManualSources.Size = new Size(252, 174);
+        lstManualSources.Size = new Size(460, 174);
         lstManualSources.TabIndex = 6;
         // 
         // btnRemoveSource
         // 
-        btnRemoveSource.Location = new Point(420, 240);
+        btnRemoveSource.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+        btnRemoveSource.Location = new Point(502, 240);
         btnRemoveSource.Name = "btnRemoveSource";
         btnRemoveSource.Size = new Size(180, 30);
         btnRemoveSource.TabIndex = 7;
@@ -325,6 +331,7 @@ partial class SettingsForm
         // 
         // chkRecursive
         // 
+        chkRecursive.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
         chkRecursive.AutoSize = true;
         chkRecursive.Location = new Point(16, 282);
         chkRecursive.Name = "chkRecursive";
@@ -334,6 +341,7 @@ partial class SettingsForm
         // 
         // chkRefreshOnStartup
         // 
+        chkRefreshOnStartup.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
         chkRefreshOnStartup.AutoSize = true;
         chkRefreshOnStartup.Location = new Point(16, 306);
         chkRefreshOnStartup.Name = "chkRefreshOnStartup";
@@ -343,9 +351,10 @@ partial class SettingsForm
         // 
         // lblLibraryNotice
         // 
-        lblLibraryNotice.Location = new Point(16, 330);
+        lblLibraryNotice.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        lblLibraryNotice.Location = new Point(16, 332);
         lblLibraryNotice.Name = "lblLibraryNotice";
-        lblLibraryNotice.Size = new Size(656, 15);
+        lblLibraryNotice.Size = new Size(946, 15);
         lblLibraryNotice.TabIndex = 10;
         lblLibraryNotice.Text = "Changing folders or Scan subfolders rescans the library when you save. Removing a folder never deletes files.";
         // 

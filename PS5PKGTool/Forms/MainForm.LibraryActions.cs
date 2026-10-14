@@ -54,7 +54,12 @@ public partial class MainForm
             return;
         }
 
-        using var form = new ConvertImageForm(source, targets, preferred);
+        string suggested = BuildBaseName(game, RenameFormatOrDefault(_settings.RenameFormat));
+        string? outputDir = !string.IsNullOrWhiteSpace(_settings.OutputDirectory) &&
+                            Directory.Exists(_settings.OutputDirectory)
+            ? _settings.OutputDirectory
+            : null;
+        using var form = new ConvertImageForm(source, targets, preferred, suggested, outputDir);
         if (form.ShowDialog(this) != DialogResult.OK) return;
         string output = form.OutputPath;
         Ps5ImageConversionTarget selected = form.Target;
@@ -514,9 +519,43 @@ public partial class MainForm
         return next is '\\' or '/' or ':' ? target + value[source.Length..] : value;
     }
 
-    // ---------------------------------------------------------------- delete to recycle bin
+    // ---------------------------------------------------------------- remove from list / delete to recycle bin
+
+    private void menuLibraryRemove_Click(object? sender, EventArgs e) => RemoveSelectedFromLibrary();
 
     private void menuLibraryDelete_Click(object? sender, EventArgs e) => DeleteSelected();
+
+    /// <summary>
+    /// Removes the selection from the library list and settings without touching files on disk.
+    /// Works for missing sources as well as present ones.
+    /// </summary>
+    private void RemoveSelectedFromLibrary()
+    {
+        List<Ps5GameInfo> games = SelectedGames().ToList();
+        if (games.Count == 0) return;
+        if (RefuseIfBusy(games)) return;
+
+        if (AppDialog.ShowWarning(
+                $"Remove {games.Count:N0} item(s) from the library list?\n\n" +
+                "Files on disk are not deleted. Use Refresh to bring scanned folders back.",
+                "Remove from library",
+                DarkUI.Forms.DarkDialogButton.YesNo) != DialogResult.Yes)
+            return;
+
+        bool clearedSelection = _selectedGame is not null &&
+            games.Any(game => ReferenceEquals(game, _selectedGame));
+        int removed = DetachGamesFromLibrary(games);
+        if (clearedSelection)
+        {
+            SetSelectedGame(null);
+            ClearDetails();
+        }
+        SaveSettingsQuietly();
+        _stateStore.SaveManifest(_games);
+        ApplyFilter();
+        Logger.Info($"Removed {removed:N0} item(s) from the library list.");
+        statusLabel.Text = $"Removed {removed:N0} item(s) from the library list.";
+    }
 
     private void DeleteSelected()
     {
@@ -533,12 +572,18 @@ public partial class MainForm
             ? Microsoft.VisualBasic.FileIO.RecycleOption.DeletePermanently
             : Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin;
 
+        bool clearedSelection = false;
         int deleted = 0;
+        int removedMissing = 0;
         int skipped = 0;
         foreach (Ps5GameInfo game in games)
         {
             string path = game.RootPath;
-            if (!IsUnderLibrary(path) && !IsManualSource(path)) { skipped++; continue; }
+            if (!IsUnderLibrary(path) && !IsManualSource(path) && SourceExists(game))
+            {
+                skipped++;
+                continue;
+            }
 
             try
             {
@@ -548,13 +593,17 @@ public partial class MainForm
                 else if (File.Exists(path))
                     Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(path,
                         Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs, recycle);
-                else { skipped++; continue; }
+                else
+                {
+                    // File already gone: still drop the list entry (issue #19).
+                    if (ReferenceEquals(game, _selectedGame)) clearedSelection = true;
+                    DetachGameFromLibrary(game);
+                    removedMissing++;
+                    continue;
+                }
 
-                RemoveSettingPath(_settings.LibraryFolders, path);
-                RemoveSettingPath(_settings.ManualSources, path);
-                RemoveSettingPath(_settings.RecentFolders, path);
-                _detailsCache.Remove(path);
-                _games.Remove(game);
+                if (ReferenceEquals(game, _selectedGame)) clearedSelection = true;
+                DetachGameFromLibrary(game);
                 deleted++;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or OperationCanceledException)
@@ -564,12 +613,41 @@ public partial class MainForm
             }
         }
 
+        if (clearedSelection)
+        {
+            SetSelectedGame(null);
+            ClearDetails();
+        }
         SaveSettingsQuietly();
         _stateStore.SaveManifest(_games);
         ApplyFilter();
         string verb = permanent ? "Permanently deleted" : "Recycled";
-        Logger.Info($"{verb} {deleted:N0} source(s); skipped {skipped:N0}.");
-        statusLabel.Text = $"{verb} {deleted:N0} source(s); skipped {skipped:N0}.";
+        Logger.Info($"{verb} {deleted:N0} source(s); removed {removedMissing:N0} missing; skipped {skipped:N0}.");
+        statusLabel.Text = removedMissing > 0
+            ? $"{verb} {deleted:N0}; removed {removedMissing:N0} missing; skipped {skipped:N0}."
+            : $"{verb} {deleted:N0} source(s); skipped {skipped:N0}.";
+    }
+
+    private int DetachGamesFromLibrary(IReadOnlyList<Ps5GameInfo> games)
+    {
+        int removed = 0;
+        foreach (Ps5GameInfo game in games)
+        {
+            DetachGameFromLibrary(game);
+            removed++;
+        }
+        return removed;
+    }
+
+    private void DetachGameFromLibrary(Ps5GameInfo game)
+    {
+        string path = game.RootPath;
+        RemoveSettingPath(_settings.LibraryFolders, path);
+        RemoveSettingPath(_settings.ManualSources, path);
+        RemoveSettingPath(_settings.RecentFolders, path);
+        _detailsCache.Remove(path);
+        ForgetLibraryThumbnail(path);
+        _games.Remove(game);
     }
 
     /// <summary>

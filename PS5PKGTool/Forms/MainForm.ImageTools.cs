@@ -464,12 +464,33 @@ public partial class MainForm
         TextBox box = ImageOutputBox();
         if (_imageSourcePath is null) { box.Clear(); return; }
         bool directory = Directory.Exists(_imageSourcePath);
-        string name = directory ? new DirectoryInfo(_imageSourcePath).Name : Path.GetFileNameWithoutExtension(_imageSourcePath);
+        // Prefer Settings → Naming when the Tools source is the selected library item.
+        string name = SuggestOutputBaseName(_imageSourcePath, directory);
         // The default output folder (when set and available) takes precedence for suggested outputs.
         string? parent = !string.IsNullOrWhiteSpace(_settings.OutputDirectory) && Directory.Exists(_settings.OutputDirectory)
             ? _settings.OutputDirectory
             : directory ? Directory.GetParent(_imageSourcePath)?.FullName : Path.GetDirectoryName(_imageSourcePath);
         box.Text = Path.Combine(parent ?? _imageSourcePath, name + suffix);
+    }
+
+    /// <summary>
+    /// Builds a Tools output base name from the rename format when a matching library game is known;
+    /// otherwise falls back to the source folder or file name.
+    /// </summary>
+    private string SuggestOutputBaseName(string sourcePath, bool directory)
+    {
+        Ps5GameInfo? game = _selectedGame is not null &&
+            string.Equals(_selectedGame.RootPath, sourcePath, StringComparison.OrdinalIgnoreCase)
+            ? _selectedGame
+            : _games.FirstOrDefault(candidate =>
+                string.Equals(candidate.RootPath, sourcePath, StringComparison.OrdinalIgnoreCase));
+        if (game is not null)
+            return BuildBaseName(game, RenameFormatOrDefault(_settings.RenameFormat));
+
+        string fallback = directory
+            ? new DirectoryInfo(sourcePath).Name
+            : Path.GetFileNameWithoutExtension(sourcePath);
+        return string.IsNullOrWhiteSpace(fallback) ? "PS5_OUTPUT" : fallback;
     }
 
 
@@ -485,6 +506,7 @@ public partial class MainForm
         if (cboImageAction.SelectedItem as string == ImageActionExtract)
         {
             folderBrowserDialog.Description = "Select the extraction folder";
+            folderBrowserDialog.UseDescriptionForTitle = true;
             if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
                 box.Text = folderBrowserDialog.SelectedPath;
             return;

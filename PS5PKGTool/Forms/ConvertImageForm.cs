@@ -12,10 +12,13 @@ public partial class ConvertImageForm : DarkUI.Forms.DarkForm
     ];
 
     public ConvertImageForm(string sourcePath, IReadOnlyList<Ps5ImageConversionTarget> targets,
-        Ps5ImageConversionTarget? preferred = null)
+        Ps5ImageConversionTarget? preferred = null, string? suggestedBaseName = null,
+        string? preferredOutputDirectory = null)
     {
         InitializeComponent();
         SourcePath = sourcePath;
+        SuggestedBaseName = suggestedBaseName;
+        PreferredOutputDirectory = preferredOutputDirectory;
         lblSource.Text = "Source: " + sourcePath;
         foreach ((Ps5ImageConversionTarget target, string name, string _, string _) in Targets)
             if (targets.Contains(target))
@@ -34,6 +37,10 @@ public partial class ConvertImageForm : DarkUI.Forms.DarkForm
     }
 
     public string SourcePath { get; }
+
+    private string? SuggestedBaseName { get; }
+
+    private string? PreferredOutputDirectory { get; }
 
     public Ps5ImageConversionTarget Target => Current?.Target ?? Ps5ImageConversionTarget.Exfat;
 
@@ -75,8 +82,13 @@ public partial class ConvertImageForm : DarkUI.Forms.DarkForm
     private string DefaultOutput(string extension)
     {
         bool directory = Directory.Exists(SourcePath);
-        string name = directory ? new DirectoryInfo(SourcePath).Name : Path.GetFileNameWithoutExtension(SourcePath);
-        string? parent = directory ? Directory.GetParent(SourcePath)?.FullName : Path.GetDirectoryName(SourcePath);
+        string name = !string.IsNullOrWhiteSpace(SuggestedBaseName)
+            ? SuggestedBaseName
+            : directory ? new DirectoryInfo(SourcePath).Name : Path.GetFileNameWithoutExtension(SourcePath);
+        string? parent = !string.IsNullOrWhiteSpace(PreferredOutputDirectory) &&
+                         Directory.Exists(PreferredOutputDirectory)
+            ? PreferredOutputDirectory
+            : directory ? Directory.GetParent(SourcePath)?.FullName : Path.GetDirectoryName(SourcePath);
         return Path.Combine(parent ?? SourcePath, name + extension);
     }
 
