@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore PS5PKGTool.slnx
+
+      - name: Build
+        run: dotnet build PS5PKGTool.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test PS5PKGTool.Tests/PS5PKGTool.Tests.csproj -c Release --no-build --verbosity normal

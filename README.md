@@ -32,7 +32,7 @@ Suggestions are welcome. Report bugs [here](https://github.com/pearlxcore/PS5Pkg
 - **Saved views** remember a query, filters, grouping, sort and column layout under a name.
 - A **Role** column labels each item Base, Update, DLC or App and marks updates that a newer patch supersedes.
 - Filter by Category, Region, and Format, use the presets for common cases, or type in the search box with a small query grammar (`title:`, `id:`, `content:`, `category:`, `role:`, `region:`, `size:>50GB`, `version:`, `fw:`, `feature:`, `path:`, `-exclude`, quoted phrases, and `|` for OR). Add `=` for an exact value (`id:=PPSA12345`); a "Check query" hint appears when a token cannot be understood.
-- Right click actions: copy Title, Title ID, Content ID, file name or path, rename (with a preview of every new name), move into folders (with a preview of every destination), delete to the Recycle Bin, save artwork, extract a package, and convert the selected image. Export the selected rows, the visible rows, or the whole library; **Find Duplicates** hashes `param.json` to separate byte-identical copies from possible ones.
+- Right click actions: copy Title, Title ID, Content ID, file name or path, rename (with a preview of every new name), move into folders (with a preview of every destination), **Remove from Library** (list only, including missing files), delete to the Recycle Bin, save artwork, extract a package, and convert the selected image. Export the selected rows, the visible rows, or the whole library; **Find Duplicates** hashes `param.json` to separate byte-identical copies from possible ones. Tools output names follow **Settings → Naming** when the source is a library item.
 - Appearance settings include a Compact / Normal / Comfortable density preset for the list.
 
 **Game Details and Files**
@@ -108,22 +108,29 @@ The release build is self-contained and includes the .NET runtime, so nothing el
 
 # Building from source
 
-Building from source also needs the [DarkUI](https://github.com/pearlxcore/DarkUI) project. Clone it next to this repository (same parent folder, folder named `DarkUI`) so the project reference resolves:
+DarkUI and ProsperoPkgTool are git submodules under `deps/`. After cloning, initialize them, then build with the .NET 10 SDK:
 
 ```
-git clone https://github.com/pearlxcore/DarkUI
-git clone https://github.com/pearlxcore/PS5PKGTool
-```
-
-Then build with the .NET 10 SDK.
-
-# Build
-
-```
+git clone --recurse-submodules https://github.com/pearlxcore/PS5PKGTool
+cd PS5PKGTool
+# If you already cloned without submodules:
+git submodule update --init --recursive
 dotnet build .\PS5PKGTool.slnx -c Release
+dotnet test .\PS5PKGTool.Tests\PS5PKGTool.Tests.csproj -c Release
 ```
 
 The app is written to `PS5PKGTool\bin\Release\net10.0-windows\PS5 PKG Tool.exe`.
+
+# FAQ
+
+### Games with a launcher and a separate title (for example Metal Gear Solid Master Collection)
+
+Some titles ship as two dumps or packages (a launcher / shell and the game itself). PS5 PKG Tool treats each source as its own library row. Group the library by **Family** to see them together. Build or convert each dump on its own; merging two independent dumps into a single FPKG is not supported yet. If both share a Content ID family, install or mount them the same way you would on a console.
+
+### LibProsperoPkg vs ProsperoPkgTool
+
+- **LibProsperoPkg** builds from an unpacked dump folder only (not from an exFAT/FFPKG/FFPFSC image).
+- **ProsperoPkgTool** can build from a folder or directly from an image. It is still experimental on real hardware (see the notice above).
 
 # Screenshot
 

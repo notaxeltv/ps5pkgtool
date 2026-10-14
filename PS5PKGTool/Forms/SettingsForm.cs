@@ -322,11 +322,27 @@ public partial class SettingsForm : DarkUI.Forms.DarkForm
 
     private void btnAdd_Click(object? sender, EventArgs e)
     {
-        if (folderBrowserDialog.ShowDialog(this) != DialogResult.OK) return;
-        string path = AppSettingsNormalizer.NormalizePath(folderBrowserDialog.SelectedPath);
-        if (lstFolders.Items.Cast<string>().Contains(path, StringComparer.OrdinalIgnoreCase)) return;
-        lstFolders.Items.Add(path);
-        UpdateSaveEnabled();
+        IReadOnlyList<string> selected = NativeFolderPicker.PickFolders(
+            this,
+            "Select folders containing dumps, packages, or images",
+            allowMultiple: true,
+            askAddAnother: _ => AppDialog.ShowInformation(
+                "Add another library folder?",
+                "Add library folder",
+                DarkUI.Forms.DarkDialogButton.YesNo) == DialogResult.Yes);
+        if (selected.Count == 0) return;
+
+        bool added = false;
+        foreach (string raw in selected)
+        {
+            string path = AppSettingsNormalizer.NormalizePath(raw);
+            if (lstFolders.Items.Cast<string>().Contains(path, StringComparer.OrdinalIgnoreCase))
+                continue;
+            lstFolders.Items.Add(path);
+            added = true;
+        }
+        if (added)
+            UpdateSaveEnabled();
     }
 
     private void btnRemove_Click(object? sender, EventArgs e)
@@ -438,6 +454,8 @@ public partial class SettingsForm : DarkUI.Forms.DarkForm
 
     private void btnBrowseOutput_Click(object? sender, EventArgs e)
     {
+        folderBrowserDialog.Description = "Select the default output folder";
+        folderBrowserDialog.UseDescriptionForTitle = true;
         if (!string.IsNullOrWhiteSpace(txtOutputDirectory.Text) && Directory.Exists(txtOutputDirectory.Text))
             folderBrowserDialog.SelectedPath = txtOutputDirectory.Text;
         if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
@@ -446,6 +464,8 @@ public partial class SettingsForm : DarkUI.Forms.DarkForm
 
     private void btnBrowseWorkspace_Click(object? sender, EventArgs e)
     {
+        folderBrowserDialog.Description = "Select the workspace folder for temporary build files";
+        folderBrowserDialog.UseDescriptionForTitle = true;
         if (!string.IsNullOrWhiteSpace(txtWorkspace.Text) && Directory.Exists(txtWorkspace.Text))
             folderBrowserDialog.SelectedPath = txtWorkspace.Text;
         if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)

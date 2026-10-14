@@ -1,0 +1,6 @@
+[submodule "deps/DarkUI"]
+	path = deps/DarkUI
+	url = https://github.com/pearlxcore/DarkUI.git
+[submodule "deps/ProsperoPkgTool"]
+	path = deps/ProsperoPkgTool
+	url = https://github.com/pearlxcore/ProsperoPkgTool.git

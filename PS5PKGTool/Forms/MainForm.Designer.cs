@@ -58,6 +58,7 @@ partial class MainForm
     private ToolStripMenuItem menuLibraryMoveSource = null!;
     private DarkUI.Controls.DarkToolStripSeparator menuLibraryMoveSeparator = null!;
     private ToolStripMenuItem menuLibraryMoveSingle = null!;
+    private ToolStripMenuItem menuLibraryRemove = null!;
     private ToolStripMenuItem menuLibraryDelete = null!;
     private DarkUI.Controls.DarkToolStripSeparator menuLibrarySeparator5 = null!;
     private ToolStripMenuItem menuLibraryGroupExport = null!;
@@ -444,6 +445,7 @@ partial class MainForm
         menuLibraryMoveSource = new ToolStripMenuItem();
         menuLibraryMoveSeparator = new DarkUI.Controls.DarkToolStripSeparator();
         menuLibraryMoveSingle = new ToolStripMenuItem();
+        menuLibraryRemove = new ToolStripMenuItem();
         menuLibraryDelete = new ToolStripMenuItem();
         menuLibrarySeparator2 = new DarkUI.Controls.DarkToolStripSeparator();
         menuLibrarySaveArtwork = new ToolStripMenuItem();
@@ -1065,7 +1067,7 @@ partial class MainForm
         // 
         // contextLibrary
         // 
-        contextLibrary.Items.AddRange(new ToolStripItem[] { menuLibraryReveal, menuLibrarySeparator1, menuLibraryCopy, menuLibraryRename, menuLibraryRenameAll, menuLibraryRenameByPriority, menuLibraryMove, menuLibraryDelete, menuLibrarySeparator2, menuLibrarySaveArtwork, menuLibraryExport, menuLibrarySeparator3, menuLibraryGroupBy, menuLibraryDuplicates, menuLibrarySeparator5, menuLibraryGroupExport, menuLibraryGroupArtwork });
+        contextLibrary.Items.AddRange(new ToolStripItem[] { menuLibraryReveal, menuLibrarySeparator1, menuLibraryCopy, menuLibraryRename, menuLibraryRenameAll, menuLibraryRenameByPriority, menuLibraryMove, menuLibraryRemove, menuLibraryDelete, menuLibrarySeparator2, menuLibrarySaveArtwork, menuLibraryExport, menuLibrarySeparator3, menuLibraryGroupBy, menuLibraryDuplicates, menuLibrarySeparator5, menuLibraryGroupExport, menuLibraryGroupArtwork });
         contextLibrary.Name = "contextLibrary";
         contextLibrary.Size = new Size(261, 318);
         contextLibrary.Opening += contextLibrary_Opening;
@@ -1221,6 +1223,15 @@ partial class MainForm
         menuLibraryMoveSingle.Size = new Size(195, 22);
         menuLibraryMoveSingle.Text = "All into the Destination";
         menuLibraryMoveSingle.Click += menuLibraryMoveSingle_Click;
+        // 
+        // menuLibraryRemove
+        // 
+        menuLibraryRemove.BackColor = Color.FromArgb(60, 63, 65);
+        menuLibraryRemove.ForeColor = Color.FromArgb(220, 220, 220);
+        menuLibraryRemove.Name = "menuLibraryRemove";
+        menuLibraryRemove.Size = new Size(260, 22);
+        menuLibraryRemove.Text = "Remove from Library";
+        menuLibraryRemove.Click += menuLibraryRemove_Click;
         // 
         // menuLibraryDelete
         // 
